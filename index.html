@@ -173,6 +173,13 @@ header nav{background:var(--fill)!important;border-color:transparent!important}
 .fine-chip{color:var(--fine-red);font-weight:700;letter-spacing:-.02em;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
 .fine-chip-pulse{animation:none}
 
+/* ---- ตารางงวดงาน: จัดแนวช่องกรอกทุกคอลัมน์ให้ตรงบรรทัดเดียวกัน ---- */
+#installmentTbody > tr > td.inst-cell{padding:10px;vertical-align:top}
+#installmentTbody > tr > td.inst-cell > input,
+#installmentTbody > tr > td.inst-cell > select{height:30px;line-height:1.15;box-sizing:border-box;display:block;margin:0}
+/* เซลล์ที่ไม่ใช่ช่องกรอก (จำนวนวันล่าช้า / ปุ่มลบ) ให้สูงเท่าช่องกรอกและอยู่กึ่งกลางแนวตั้ง */
+#installmentTbody .inst-static{min-height:30px;display:flex;align-items:center;justify-content:center}
+
 .line-clamp-1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
@@ -598,7 +605,7 @@ input[type=number]{-moz-appearance:textfield}
         <div class="space-y-4 pt-4 border-t border-slate-100">
           <div class="flex items-center justify-between flex-wrap gap-2">
             <h4 class="text-xs font-semibold text-ice-700 border-l-4 border-ice-600 pl-3 uppercase tracking-wider flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4"></i> ส่วนที่ 2 : ข้อมูลหลักประกัน (GUARANTEES)</h4>
-            <span class="text-[11px] text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">แจ้งเตือนล่วงหน้า 30 วัน</span>
+            <span class="text-[11px] text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200" data-tip="ระบบจะนับถอยหลังจาก &quot;สิ้นสุด&quot; ของระยะเวลาประกัน และขึ้นแจ้งเตือนเมื่อเหลือ 30 วันหรือน้อยกว่า ทั้งบน Dashboard, การ์ดเร่งด่วน และหน้า Tracking Screen" data-tip-label="การแจ้งเตือน">แจ้งเตือนล่วงหน้า 30 วัน</span>
           </div>
 
           <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3">
@@ -683,7 +690,10 @@ input[type=number]{-moz-appearance:textfield}
         <!-- ส่วนที่ 3 -->
         <div class="space-y-4 pt-4 border-t border-slate-100">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <h4 class="text-xs font-semibold text-ice-700 border-l-4 border-ice-600 pl-3 uppercase tracking-wider flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4"></i> ส่วนที่ 3 : ข้อมูลการตรวจรับงานและค่าปรับ</h4>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h4 class="text-xs font-semibold text-ice-700 border-l-4 border-ice-600 pl-3 uppercase tracking-wider flex items-center gap-2"><i data-lucide="clipboard-check" class="w-4 h-4"></i> ส่วนที่ 3 : ข้อมูลการตรวจรับงานและค่าปรับ</h4>
+              <span class="text-[11px] text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200" data-tip="ระบบจะนับถอยหลังจาก &quot;ครบกำหนดส่งมอบ&quot; ของงวดที่ยังไม่ส่งมอบ และขึ้นแจ้งเตือนเมื่อเหลือ 30 วันหรือน้อยกว่า ทั้งบน Dashboard, การ์ดเร่งด่วน และหน้า Tracking Screen" data-tip-label="การแจ้งเตือน">แจ้งเตือนล่วงหน้า 30 วัน</span>
+            </div>
             <div class="flex items-center gap-4 text-xs flex-wrap">
               <span class="font-medium text-slate-700">ลักษณะการส่งมอบ:</span>
               <label class="flex items-center gap-1.5 cursor-pointer">
@@ -698,19 +708,19 @@ input[type=number]{-moz-appearance:textfield}
           </div>
 
           <div class="overflow-x-auto border border-slate-200 rounded-2xl bg-white p-2">
-            <table class="w-full text-xs text-left">
+            <table class="w-full min-w-[1220px] text-xs text-left">
               <thead class="text-[10px] text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
                 <tr>
-                  <th class="p-2.5 min-w-[120px]">งวดที่</th>
-                  <th class="p-2.5 min-w-[130px]">มูลค่า (บาท)</th>
-                  <th class="p-2.5 min-w-[140px]">ครบกำหนดส่งมอบ</th>
-                  <th class="p-2.5 min-w-[140px]">ส่งมอบจริง <span class="text-[9px] text-slate-400 font-normal block">(ถ้ายังไม่ส่ง เว้นว่าง)</span></th>
-                  <th class="p-2.5 w-20 text-center">ล่าช้า (วัน)</th>
-                  <th class="p-2.5 w-24">อัตรา/วัน (%)</th>
-                  <th class="p-2.5 min-w-[160px]">ฐานคิดค่าปรับ</th>
-                  <th class="p-2.5 min-w-[130px]">ค่าปรับ (บาท)</th>
-                  <th class="p-2.5 min-w-[140px]">หมายเหตุ / เหตุผลล่าช้า</th>
-                  <th class="p-2.5 w-10 text-center"></th>
+                  <th class="p-2.5 min-w-[118px] whitespace-nowrap">งวดที่</th>
+                  <th class="p-2.5 min-w-[130px] whitespace-nowrap">มูลค่า (บาท)</th>
+                  <th class="p-2.5 min-w-[136px] whitespace-nowrap">ครบกำหนดส่งมอบ</th>
+                  <th class="p-2.5 min-w-[136px] whitespace-nowrap">ส่งมอบจริง <span class="text-[9px] text-slate-400 font-normal block normal-case">(ถ้ายังไม่ส่ง เว้นว่าง)</span></th>
+                  <th class="p-2.5 min-w-[84px] text-center whitespace-nowrap">ล่าช้า (วัน)</th>
+                  <th class="p-2.5 min-w-[110px] text-center whitespace-nowrap">อัตรา/วัน (%)</th>
+                  <th class="p-2.5 min-w-[196px] whitespace-nowrap">ฐานคิดค่าปรับ</th>
+                  <th class="p-2.5 min-w-[140px] whitespace-nowrap">ค่าปรับ (บาท)</th>
+                  <th class="p-2.5 min-w-[136px] whitespace-nowrap">หมายเหตุ / เหตุผลล่าช้า</th>
+                  <th class="p-2.5 w-11"></th>
                 </tr>
               </thead>
               <tbody id="installmentTbody" class="divide-y divide-slate-100"></tbody>
@@ -726,10 +736,6 @@ input[type=number]{-moz-appearance:textfield}
               <button type="button" onclick="addInstallmentRow()" class="text-xs text-ice-600 hover:text-ice-700 font-semibold flex items-center gap-1 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> เพิ่มงวดงานส่งมอบ
               </button>
-              <button type="button" onclick="recalcAllInstallments(true)" class="text-xs text-slate-600 hover:text-slate-800 font-semibold flex items-center gap-1 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
-                <i data-lucide="calculator" class="w-3.5 h-3.5"></i> คำนวณค่าปรับใหม่ทั้งหมด
-              </button>
-              <span class="text-[10px] text-slate-400">ค่าปรับคำนวณอัตโนมัติ = ฐานคิดค่าปรับ × อัตรา%/วัน × จำนวนวันล่าช้า (ขั้นต่ำ 100 บาท/วัน) — แก้ไขทับได้เอง</span>
             </div>
           </div>
         </div>
@@ -981,14 +987,14 @@ input[type=number]{-moz-appearance:textfield}
 <div id="confirmModal" class="fixed inset-0 z-[85] hidden bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
   <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl modal-animate border border-slate-100 space-y-4">
     <div class="flex items-start gap-3">
-      <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+      <div id="confirmIconWrap" class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
       <div>
         <h3 class="text-sm font-bold text-darkText" id="confirmTitle">ยืนยันการทำรายการ</h3>
-        <p class="text-xs text-slate-500 mt-1" id="confirmMessage">—</p>
+        <p class="text-xs text-slate-500 mt-1 leading-relaxed" id="confirmMessage">—</p>
       </div>
     </div>
     <div class="flex justify-end gap-2 pt-1">
-      <button type="button" onclick="closeConfirm()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-full font-semibold text-xs">ยกเลิก</button>
+      <button type="button" id="confirmCancelBtn" onclick="cancelConfirm()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full font-semibold text-xs">ยกเลิก</button>
       <button type="button" id="confirmOkBtn" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-full font-semibold text-xs">ยืนยัน</button>
     </div>
   </div>
@@ -1109,8 +1115,8 @@ function saveStaff() {
 
 /* เพิ่มรายชื่อจากฟอร์ม — startUsing = true คือเพิ่มแล้วสลับไปใช้ชื่อนั้นทันที */
 function addStaffMember(startUsing) {
-  const nameTh = document.getElementById('userPickerNewName').value.trim();
-  const nameEn = document.getElementById('userPickerNewNameEn').value.trim();
+  const nameTh = cleanText(document.getElementById('userPickerNewName').value);
+  const nameEn = cleanText(document.getElementById('userPickerNewNameEn').value);
   const unit = document.getElementById('userPickerNewUnit').value.trim() || 'สบด.ฝอค.สนวก.';
 
   if (!nameTh) { toast('กรุณาระบุชื่อ-นามสกุล (ภาษาไทย)', 'error'); return; }
@@ -1358,6 +1364,13 @@ const FINE_BASIS = [
   'คิดเฉพาะส่วนที่ยังไม่ได้ส่งมอบ'
 ];
 
+/* ข้อความย่อสำหรับช่องเลือกในตาราง — ค่าที่บันทึกลงฐานข้อมูลยังเป็นข้อความเต็มใน FINE_BASIS เสมอ */
+const FINE_BASIS_SHORT = [
+  'มูลค่ารวมของสัญญา',
+  'มูลค่าเฉพาะงานนั้น',
+  'ส่วนที่ยังไม่ส่งมอบ'
+];
+
 const MIN_FINE_PER_DAY = 100;         // ค่าปรับขั้นต่ำ 100 บาท/วัน
 const ALERT_WINDOW_DAYS = 30;         // แจ้งเตือนล่วงหน้า 30 วัน
 const TH_MONTHS_SHORT = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
@@ -1492,6 +1505,25 @@ function formatCurrencyInput(input) {
   if (caretEnd) input.setSelectionRange(input.value.length, input.value.length);
 }
 
+/* ---------------------------------------------------------------------------
+   ทำความสะอาดข้อความที่ผู้ใช้กรอก
+   ปัญหาที่พบจริง: สลับแป้นพิมพ์ไทย/อังกฤษแล้วมีสระหรือวรรณยุกต์ลอยติดมาข้างหน้า
+   เช่น "์NCH2-0000001" ซึ่งมองแทบไม่เห็นในช่องกรอก แต่จะไปเกาะตัวอักษรข้างหน้า
+   เมื่อนำไปต่อกับข้อความอื่น ทำให้หน้าจออ่านเพี้ยน
+   --------------------------------------------------------------------------- */
+const TH_MARKS = '\u0E31\u0E34-\u0E3A\u0E47-\u0E4E';
+const RE_MARK_LEAD  = new RegExp('^[' + TH_MARKS + ']+');
+const RE_MARK_AFTER = new RegExp('([\\s\\-/()\\[\\].,]|^)[' + TH_MARKS + ']+', 'g');
+
+function cleanText(v) {
+  if (v == null) return '';
+  let out = String(v);
+  if (out.normalize) out = out.normalize('NFC');
+  out = out.replace(RE_MARK_LEAD, '');    /* เครื่องหมายลอยหน้าสุด */
+  out = out.replace(RE_MARK_AFTER, '$1'); /* เครื่องหมายลอยหลังช่องว่างหรือตัวคั่น */
+  return out.replace(/\s+/g, ' ').trim();
+}
+
 function esc(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -1528,19 +1560,19 @@ function blankNotice() {
 function normalizeContract(raw, fallbackId) {
   const c = Object.assign({}, raw);
   c.id = c.id != null ? Number(c.id) : fallbackId;
-  c.contractNo = c.contractNo || '';
+  c.contractNo = cleanText(c.contractNo);
   c.contractDate = c.contractDate || '';
-  c.projectName = c.projectName || '';
+  c.projectName = cleanText(c.projectName);
   c.airport = c.airport || AIRPORTS[0].code;
   if (c.airport === 'ทสก. (BKK)') c.airport = 'ทสภ. (BKK)';
   c.workType = c.workType || 'งานซื้อหรือจ้างทั่วไป';
-  c.vendor = c.vendor || '';
+  c.vendor = cleanText(c.vendor);
   c.amount = parseMoney(c.amount);
   c.durationDays = parseInt(c.durationDays, 10) || 0;
   c.startDate = c.startDate || '';
-  c.chairman = c.chairman || '';
-  c.secretary = c.secretary || '';
-  c.committee = Array.isArray(c.committee) ? c.committee.filter(Boolean) : [];
+  c.chairman = cleanText(c.chairman);
+  c.secretary = cleanText(c.secretary);
+  c.committee = (Array.isArray(c.committee) ? c.committee : []).map(cleanText).filter(Boolean);
   c.deliveryType = c.deliveryType || (Array.isArray(c.installments) && c.installments.length > 1 ? 'multiple' : 'single');
 
   c.advPeriod = c.advPeriod || { start: c.advDateStart || '', end: c.advDateEnd || '' };
@@ -2012,16 +2044,47 @@ function toast(message, type) {
   }, 3600);
 }
 
-function askConfirm(title, message, onOk) {
+/* โทนของกล่องยืนยัน: danger = การกระทำที่ย้อนกลับไม่ได้, warn = ทักท้วงก่อนบันทึก */
+const CONFIRM_TONES = {
+  danger: { wrap: 'bg-rose-100 text-rose-600',  icon: 'alert-triangle', ok: 'bg-rose-600 hover:bg-rose-700' },
+  warn:   { wrap: 'bg-amber-100 text-amber-600', icon: 'alert-circle',   ok: 'bg-ice-600 hover:bg-ice-700' }
+};
+let confirmCancelCallback = null;
+
+function askConfirm(title, message, onOk, opts) {
+  opts = opts || {};
+  const tone = CONFIRM_TONES[opts.tone] || CONFIRM_TONES.danger;
+
   document.getElementById('confirmTitle').innerText = title;
-  document.getElementById('confirmMessage').innerText = message;
-  document.getElementById('confirmMessage').style.whiteSpace = 'pre-line';
+  const msgEl = document.getElementById('confirmMessage');
+  msgEl.innerText = message;
+  msgEl.style.whiteSpace = 'pre-line';
+
+  const wrap = document.getElementById('confirmIconWrap');
+  wrap.className = 'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ' + tone.wrap;
+  /* สร้าง icon ใหม่ทุกครั้ง เพราะ lucide จะแทน <i> ด้วย <svg> หลัง render */
+  wrap.innerHTML = `<i data-lucide="${tone.icon}" class="w-5 h-5"></i>`;
+
+  const okBtn = document.getElementById('confirmOkBtn');
+  okBtn.className = 'px-5 py-2 text-white rounded-full font-semibold text-xs ' + tone.ok;
+  okBtn.innerText = opts.okText || 'ยืนยัน';
+  document.getElementById('confirmCancelBtn').innerText = opts.cancelText || 'ยกเลิก';
+
   confirmCallback = onOk;
+  confirmCancelCallback = opts.onCancel || null;
   showOverlay('confirmModal');
   renderIcons();
 }
 
-function closeConfirm() { hideOverlay('confirmModal'); confirmCallback = null; }
+/* ปิดกล่อง (ใช้กับ Esc / คลิกพื้นหลัง) — ไม่เรียก callback ฝั่งยกเลิก */
+function closeConfirm() { hideOverlay('confirmModal'); confirmCallback = null; confirmCancelCallback = null; }
+
+/* กดปุ่มยกเลิกโดยตรง — ถ้ามีการกระทำฝั่งยกเลิกให้ทำงานด้วย */
+function cancelConfirm() {
+  const cb = confirmCancelCallback;
+  closeConfirm();
+  if (typeof cb === 'function') cb();
+}
 
 function showOverlay(id) {
   const el = document.getElementById(id);
@@ -2155,9 +2218,13 @@ function renderKPIs() {
 function renderBarChart() {
   const container = document.getElementById('barChartContainer');
   const ap = selectedAirport();
-  const codes = ap === 'ALL'
-    ? CHART_AIRPORTS.concat(AIRPORTS.map(a => a.code).filter(c => CHART_AIRPORTS.indexOf(c) < 0))
-    : [ap];
+  /* ลำดับที่กำหนดไว้ก่อน แล้วต่อท้ายด้วยท่าอากาศยานอื่นที่มีข้อมูลจริงในระบบ
+     (เช่น มาจากไฟล์นำเข้า หรือรหัสที่เพิ่มภายหลัง) เพื่อไม่ให้สัญญาหายไปจากกราฟ */
+  const known = CHART_AIRPORTS.concat(AIRPORTS.map(a => a.code).filter(c => CHART_AIRPORTS.indexOf(c) < 0));
+  const extra = Array.from(new Set(contracts.map(c => c.airport).filter(Boolean)))
+    .filter(c => known.indexOf(c) < 0)
+    .sort((a, b) => String(a).localeCompare(String(b), 'th'));
+  const codes = ap === 'ALL' ? known.concat(extra) : [ap];
 
   const rows = codes.map(code => {
     const apContracts = contracts.filter(c => c.airport === code);
@@ -2780,9 +2847,9 @@ function collectGuarantees(type) {
   return Array.from(tbody.children).map(tr => ({
     recDate: getDatepickerValue(tr.querySelector('.guar-rec-date')),
     type: tr.querySelector('.guar-type') ? tr.querySelector('.guar-type').value : GUARANTEE_TYPES[0],
-    no: tr.querySelector('.guar-no') ? tr.querySelector('.guar-no').value.trim() : '',
+    no: tr.querySelector('.guar-no') ? cleanText(tr.querySelector('.guar-no').value) : '',
     docDate: getDatepickerValue(tr.querySelector('.guar-doc-date')),
-    bank: tr.querySelector('.guar-bank') ? tr.querySelector('.guar-bank').value.trim() : '',
+    bank: tr.querySelector('.guar-bank') ? cleanText(tr.querySelector('.guar-bank').value) : '',
     amount: parseMoney(tr.querySelector('.guar-amount') ? tr.querySelector('.guar-amount').value : 0)
   })).filter(g => g.no || g.bank || g.amount || g.recDate || g.docDate);
 }
@@ -2809,28 +2876,29 @@ function addInstallmentRow(data) {
   tr.id = rowId;
   tr.className = 'hover:bg-slate-50';
   tr.innerHTML = `
-    <td class="p-2"><input type="text" value="${esc(defaultName)}" class="inst-no w-full px-2 py-1 border border-slate-200 rounded text-xs font-semibold"></td>
-    <td class="p-2"><input type="text" value="${data.amount ? formatMoney(data.amount) : ''}" oninput="formatCurrencyInput(this); recalcRow('${rowId}')" placeholder="0.00" class="inst-amount w-full px-2 py-1 border border-slate-200 rounded text-xs text-right"></td>
-    <td class="p-2"><input type="text" placeholder="เลือกวันที่..." class="datepicker-input inst-due w-full px-2 py-1 border border-slate-200 rounded text-xs text-center"></td>
-    <td class="p-2"><input type="text" placeholder="เลือกวันที่..." class="datepicker-input inst-actual w-full px-2 py-1 border border-slate-200 rounded text-xs text-center"></td>
-    <td class="p-2 text-center"><span class="inst-delay font-bold text-slate-700">0</span></td>
-    <td class="p-2"><input type="number" step="0.01" min="0" value="${data.fineRate != null ? data.fineRate : 0.10}" oninput="recalcRow('${rowId}')" class="inst-fine-rate w-full px-2 py-1 border border-slate-200 rounded text-xs text-center"></td>
-    <td class="p-2">
-      <select class="inst-basis w-full px-2 py-1 border border-slate-200 rounded text-xs" onchange="recalcRow('${rowId}')">
-        ${FINE_BASIS.map(b => `<option value="${esc(b)}" ${data.basis === b ? 'selected' : ''}>${esc(b)}</option>`).join('')}
+    <td class="inst-cell"><input type="text" value="${esc(defaultName)}" class="inst-no w-full px-2 py-1 border border-slate-200 rounded text-xs font-semibold"></td>
+    <td class="inst-cell"><input type="text" value="${data.amount ? formatMoney(data.amount) : ''}" oninput="formatCurrencyInput(this); recalcRow('${rowId}')" placeholder="0.00" class="inst-amount w-full px-2 py-1 border border-slate-200 rounded text-xs text-right"></td>
+    <td class="inst-cell"><input type="text" placeholder="เลือกวันที่..." class="datepicker-input inst-due w-full px-2 py-1 border border-slate-200 rounded text-xs text-center"></td>
+    <td class="inst-cell"><input type="text" placeholder="เลือกวันที่..." class="datepicker-input inst-actual w-full px-2 py-1 border border-slate-200 rounded text-xs text-center"></td>
+    <td class="inst-cell"><div class="inst-static text-center"><span class="inst-delay font-bold text-slate-700">0</span></div></td>
+    <td class="inst-cell"><input type="number" step="0.01" min="0" value="${data.fineRate != null ? data.fineRate : 0.10}" oninput="recalcRow('${rowId}')" class="inst-fine-rate w-full min-w-[74px] px-2 py-1 border border-slate-200 rounded text-xs text-center"></td>
+    <td class="inst-cell">
+      <select class="inst-basis w-full min-w-[176px] px-2 py-1 border border-slate-200 rounded text-xs" onchange="recalcRow('${rowId}')">
+        ${FINE_BASIS.map((b, i) => `<option value="${esc(b)}" ${data.basis === b ? 'selected' : ''}>${esc(FINE_BASIS_SHORT[i])}</option>`).join('')}
       </select>
     </td>
-    <td class="p-2">
-      <input type="text" value="${data.fine ? formatMoney(data.fine) : ''}" data-manual="${data.fineManual ? '1' : '0'}"
-             oninput="formatCurrencyInput(this); this.dataset.manual='1'; updateInstallmentFineTotal();"
+    <td class="inst-cell">
+      <input type="text" value="${data.fine ? formatMoney(data.fine) : ''}" data-manual="${data.fine ? '1' : '0'}"
+             oninput="formatCurrencyInput(this); this.dataset.manual = this.value.trim() ? '1' : '0'; updateInstallmentFineTotal();"
              placeholder="0.00" class="inst-fine fine-amount w-full px-2 py-1 border border-slate-200 rounded text-xs text-right">
-      <button type="button" onclick="resetRowFineToAuto('${rowId}')" class="text-[10px] text-ice-600 hover:underline mt-0.5">คำนวณอัตโนมัติ</button>
     </td>
-    <td class="p-2"><input type="text" value="${esc(data.note || '')}" placeholder="ระบุเหตุผล..." class="inst-note w-full px-2 py-1 border border-slate-200 rounded text-xs"></td>
-    <td class="p-2 text-center">
-      <button type="button" onclick="removeRow('${rowId}', function(){ updateInstallmentFineTotal(); })" class="text-rose-500 hover:bg-rose-50 p-1 rounded">
-        <i data-lucide="trash-2" class="w-4 h-4"></i>
-      </button>
+    <td class="inst-cell"><input type="text" value="${esc(data.note || '')}" placeholder="ระบุเหตุผล..." class="inst-note w-full px-2 py-1 border border-slate-200 rounded text-xs"></td>
+    <td class="inst-cell text-center">
+      <div class="inst-static">
+        <button type="button" onclick="removeRow('${rowId}', function(){ updateInstallmentFineTotal(); })" class="text-rose-500 hover:bg-rose-50 p-1 rounded">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      </div>
     </td>`;
   tbody.appendChild(tr);
 
@@ -2842,7 +2910,7 @@ function addInstallmentRow(data) {
   if (dueEl._flatpickr) dueEl._flatpickr.config.onChange.push(() => recalcRow(rowId));
   if (actEl._flatpickr) actEl._flatpickr.config.onChange.push(() => recalcRow(rowId));
 
-  recalcRow(rowId, !data.fineManual);
+  recalcRow(rowId);
   renderIcons();
 }
 
@@ -2860,7 +2928,7 @@ function draftContractFromForm() {
   };
 }
 
-function recalcRow(rowId, forceAuto) {
+function recalcRow(rowId) {
   const tr = document.getElementById(rowId);
   if (!tr) return;
 
@@ -2879,26 +2947,12 @@ function recalcRow(rowId, forceAuto) {
   delaySpan.className = days > 0 ? 'inst-delay font-bold text-rose-600'
     : (actualISO ? 'inst-delay font-bold text-emerald-600' : 'inst-delay font-bold text-slate-700');
 
-  const fineInput = tr.querySelector('.inst-fine');
-  const isManual = fineInput.dataset.manual === '1';
-  if (forceAuto || !isManual) {
-    const value = autoFine(draftContractFromForm(), inst);
-    fineInput.value = value ? formatMoney(value) : '';
-    fineInput.dataset.manual = '0';
-  }
+  /* ค่าปรับเป็นช่องกรอกเอง ระบบไม่เขียนทับสิ่งที่ผู้ใช้กรอก */
   updateInstallmentFineTotal();
 }
 
-function resetRowFineToAuto(rowId) {
-  const tr = document.getElementById(rowId);
-  if (!tr) return;
-  tr.querySelector('.inst-fine').dataset.manual = '0';
-  recalcRow(rowId, true);
-}
-
-function recalcAllInstallments(forceAuto) {
-  Array.from(document.getElementById('installmentTbody').children).forEach(tr => recalcRow(tr.id, !!forceAuto));
-  if (forceAuto) toast('คำนวณค่าปรับใหม่ทั้งหมดเรียบร้อย', 'info');
+function recalcAllInstallments() {
+  Array.from(document.getElementById('installmentTbody').children).forEach(tr => recalcRow(tr.id));
 }
 
 function updateInstallmentFineTotal() {
@@ -2912,16 +2966,55 @@ function updateInstallmentFineTotal() {
 function collectInstallments() {
   const tbody = document.getElementById('installmentTbody');
   return Array.from(tbody.children).map((tr, idx) => ({
-    no: tr.querySelector('.inst-no').value.trim() || `งวดที่ ${idx + 1}`,
+    no: cleanText(tr.querySelector('.inst-no').value) || `งวดที่ ${idx + 1}`,
     amount: parseMoney(tr.querySelector('.inst-amount').value),
     dueDate: getDatepickerValue(tr.querySelector('.inst-due')),
     actualDate: getDatepickerValue(tr.querySelector('.inst-actual')),
     fineRate: parseFloat(tr.querySelector('.inst-fine-rate').value) || 0.10,
     fine: parseMoney(tr.querySelector('.inst-fine').value),
-    fineManual: tr.querySelector('.inst-fine').dataset.manual === '1',
+    /* fineManual = ผู้ใช้กรอกตัวเลขค่าปรับจริงไว้แล้ว (ยืนยันจากกรรมการตรวจรับ) */
+    fineManual: !!tr.querySelector('.inst-fine').value.trim(),
     basis: tr.querySelector('.inst-basis').value,
-    note: tr.querySelector('.inst-note').value.trim()
+    note: cleanText(tr.querySelector('.inst-note').value)
   }));
+}
+
+/* ---------------------------------------------------------------
+   ระบบช่วยเตือนตอนกรอกข้อมูล (Pre-save check)
+   คืนค่า true = บันทึกต่อได้ทันที / false = มีกล่องทักท้วงเปิดอยู่
+   หลักการ: ทักท้วงเพื่อให้ตรวจซ้ำ ไม่ห้ามบันทึก
+---------------------------------------------------------------- */
+function runPreSaveCheck(installments) {
+  const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
+
+  /* เลือก "แบ่งจ่ายเป็นงวด" แต่ระบุไว้เพียงงวดเดียว */
+  if (deliveryType === 'multiple' && installments.length === 1) {
+    askConfirm(
+      'ตรวจสอบจำนวนงวดงาน',
+      'เลือก "แบ่งจ่ายเป็นงวด" แต่ระบุไว้เพียง 1 งวด\nต้องการบันทึกตามนี้ หรือเพิ่มงวดก่อน?',
+      function () { saveContract(null, true); },
+      {
+        tone: 'warn',
+        okText: 'บันทึกตามนี้',
+        cancelText: 'เพิ่มงวดก่อน',
+        onCancel: function () {
+          switchTab('form');
+          addInstallmentRow();
+          const rows = document.getElementById('installmentTbody').children;
+          const last = rows[rows.length - 1];
+          if (last) {
+            last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const el = last.querySelector('.inst-no');
+            if (el) setTimeout(() => { el.focus(); el.select(); }, 350);
+          }
+          toast('เพิ่มงวดงานใหม่แล้ว กรุณากรอกข้อมูลให้ครบก่อนบันทึก', 'info');
+        }
+      }
+    );
+    return false;
+  }
+
+  return true;
 }
 
 function toggleDeliveryMode() {
@@ -3072,17 +3165,17 @@ function editContract(id) {
   delBtn.classList.add('flex');
 
   suggestEndDate();
-  recalcAllInstallments(false);
+  recalcAllInstallments();
   closeModal();
   switchTab('form');
 }
 
-function saveContract(e) {
-  e.preventDefault();
+function saveContract(e, skipPreCheck) {
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
 
   const editingId = document.getElementById('editingContractId').value;
   const committee = Array.from(document.querySelectorAll('input[name="committeeMember"]'))
-    .map(i => i.value.trim()).filter(Boolean);
+    .map(i => cleanText(i.value)).filter(Boolean);
 
   const contractDate = getDatepickerValue('formContractDate');
   const startDate = getDatepickerValue('formStartDate');
@@ -3094,18 +3187,21 @@ function saveContract(e) {
   if (!installments.length) { toast('กรุณาเพิ่มงวดงานส่งมอบอย่างน้อย 1 งวด', 'error'); return; }
   if (!installments.some(i => i.dueDate)) { toast('กรุณาระบุวันครบกำหนดส่งมอบอย่างน้อย 1 งวด', 'error'); return; }
 
+  /* ทักท้วงก่อนบันทึก — ไม่บล็อก ผู้ใช้ยืนยันบันทึกต่อได้ */
+  if (!skipPreCheck && !runPreSaveCheck(installments)) return;
+
   const payload = {
-    contractNo: document.getElementById('formContractNo').value.trim(),
+    contractNo: cleanText(document.getElementById('formContractNo').value),
     contractDate: contractDate,
     airport: document.getElementById('formAirport').value,
-    projectName: document.getElementById('formProjectName').value.trim(),
-    vendor: document.getElementById('formVendor').value.trim(),
+    projectName: cleanText(document.getElementById('formProjectName').value),
+    vendor: cleanText(document.getElementById('formVendor').value),
     workType: document.getElementById('formWorkType').value,
     amount: parseMoney(document.getElementById('formAmount').value),
     durationDays: parseInt(document.getElementById('formDurationDays').value, 10) || 0,
     startDate: startDate,
-    chairman: document.getElementById('formChairman').value.trim(),
-    secretary: document.getElementById('formSecretary').value.trim(),
+    chairman: cleanText(document.getElementById('formChairman').value),
+    secretary: cleanText(document.getElementById('formSecretary').value),
     committee: committee,
     deliveryType: document.querySelector('input[name="deliveryType"]:checked').value,
 
@@ -3117,28 +3213,28 @@ function saveContract(e) {
     installments: installments,
 
     deliver: {
-      docNo: document.getElementById('formDeliverDocNo').value.trim(),
+      docNo: cleanText(document.getElementById('formDeliverDocNo').value),
       docDate: getDatepickerValue('formDeliverDocDate'),
       noticeCommDate: getDatepickerValue('formDeliverNoticeCommDate'),
       noticeVendorDate: getDatepickerValue('formDeliverNoticeVendorDate'),
-      vendorDocNo: document.getElementById('formDeliverVendorDocNo').value.trim(),
+      vendorDocNo: cleanText(document.getElementById('formDeliverVendorDocNo').value),
       vendorDocDate: getDatepickerValue('formDeliverVendorDocDate'),
       status: document.getElementById('formDeliverStatus').value,
       noticeCount: parseInt(document.getElementById('formDeliverNoticeCount').value, 10) || 0,
-      assignee: document.getElementById('formDeliverAssignee').value.trim(),
-      note: document.getElementById('formDeliverNote').value.trim()
+      assignee: cleanText(document.getElementById('formDeliverAssignee').value),
+      note: cleanText(document.getElementById('formDeliverNote').value)
     },
     guar: {
-      docNo: document.getElementById('formGuarDocNo').value.trim(),
+      docNo: cleanText(document.getElementById('formGuarDocNo').value),
       docDate: getDatepickerValue('formGuarDocDate'),
       noticeCommDate: getDatepickerValue('formGuarNoticeCommDate'),
       noticeVendorDate: getDatepickerValue('formGuarNoticeVendorDate'),
-      vendorDocNo: document.getElementById('formGuarVendorDocNo').value.trim(),
+      vendorDocNo: cleanText(document.getElementById('formGuarVendorDocNo').value),
       vendorDocDate: getDatepickerValue('formGuarVendorDocDate'),
       status: document.getElementById('formGuarStatus').value,
       noticeCount: parseInt(document.getElementById('formGuarNoticeCount').value, 10) || 0,
-      assignee: document.getElementById('formGuarAssignee').value.trim(),
-      note: document.getElementById('formGuarNote').value.trim()
+      assignee: cleanText(document.getElementById('formGuarAssignee').value),
+      note: cleanText(document.getElementById('formGuarNote').value)
     },
     updatedAt: nowStamp()
   };
@@ -3237,9 +3333,9 @@ function updateIssuePreview() {
 function closeIssueDocModal() { hideOverlay('issueDocModal'); }
 
 function confirmIssueNotice() {
-  const docNo = document.getElementById('manualDocNoInput').value.trim();
+  const docNo = cleanText(document.getElementById('manualDocNoInput').value);
   const docDate = getDatepickerValue('manualDocDateInput');
-  const assignee = document.getElementById('manualDocAssignee').value.trim();
+  const assignee = cleanText(document.getElementById('manualDocAssignee').value);
   const kind = document.getElementById('manualDocKind').value;
 
   if (!docNo) { toast('กรุณาระบุเลขที่หนังสือ ฝอค. ก่อนดำเนินการ', 'error'); return; }
@@ -3467,8 +3563,9 @@ function openModal(contractId) {
                   <td class="p-2 text-center text-slate-600 whitespace-nowrap">${thDate(i.dueDate)}</td>
                   <td class="p-2 text-center whitespace-nowrap ${pending ? 'text-amber-600' : 'text-emerald-600 font-medium'}">${pending ? 'ยังไม่ส่งมอบ' : thDate(i.actualDate)}</td>
                   <td class="p-2 text-center font-bold ${d > 0 ? 'text-rose-600' : 'text-slate-400'}">${d}</td>
-                  <td class="p-2 text-slate-500">${esc(i.basis)}<div class="text-[10px] text-slate-400">${i.fineRate}% / วัน${i.fineManual ? ' • ระบุเอง' : ''}</div></td>
-                  <td class="p-2 text-right whitespace-nowrap ${f > 0 ? 'fine-amount' : 'text-slate-400'}">${formatMoney(f)}</td>
+                  <td class="p-2 text-slate-500 whitespace-nowrap">${esc(i.basis)}
+                      <span class="text-slate-400">· ${i.fineRate}% / วัน</span></td>
+                  <td class="p-2 text-right whitespace-nowrap ${f > 0 ? 'fine-amount' : 'text-slate-400'}">${formatMoney(f)}${(!i.fineManual && f > 0) ? '<span class="block text-[9px] font-medium text-amber-600 leading-tight mt-0.5" data-tip="ยังไม่ได้บันทึกค่าปรับจริงจากกรรมการตรวจรับ ตัวเลขนี้มาจากสูตรคำนวณ">ประมาณการ</span>' : ''}</td>
                   <td class="p-2 text-slate-500">${esc(i.note || '-')}</td>
                 </tr>`;
             }).join('')}
@@ -3490,22 +3587,23 @@ function openModal(contractId) {
       <span class="text-slate-400 text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1.5">
         <i data-lucide="users" class="w-3.5 h-3.5 text-ice-600"></i> คณะกรรมการตรวจรับพัสดุฯ
       </span>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-        <div class="p-2 bg-slate-50 rounded-lg flex items-center justify-between border border-slate-100 gap-2">
-          <span class="text-slate-500 whitespace-nowrap">ประธานตรวจรับ:</span>
-          <span class="font-semibold text-darkText text-right">${esc(item.chairman || '-')}</span>
+      <div class="rounded-xl border border-slate-200 overflow-hidden text-xs">
+        <div class="flex items-center gap-3 px-3 py-2.5 bg-slate-50 border-b border-slate-200">
+          <span class="w-14 shrink-0 text-[10px] font-semibold text-ice-700">ประธาน</span>
+          <span class="font-semibold text-darkText">${esc(item.chairman || '-')}</span>
         </div>
-        ${item.secretary ? `
-        <div class="p-2 bg-slate-50 rounded-lg flex items-center justify-between border border-slate-100 gap-2">
-          <span class="text-slate-500 whitespace-nowrap">เลขานุการ:</span>
-          <span class="font-medium text-darkText text-right">${esc(item.secretary)}</span>
-        </div>` : ''}
         ${(item.committee || []).map((m, i) => `
-          <div class="p-2 bg-slate-50 rounded-lg flex items-center justify-between border border-slate-100 gap-2">
-            <span class="text-slate-500 whitespace-nowrap">กรรมการ (${i + 1}):</span>
-            <span class="font-medium text-darkText text-right">${esc(m)}</span>
+          <div class="flex items-center gap-3 px-3 py-2.5 border-b border-slate-100">
+            <span class="w-14 shrink-0 text-[10px] text-slate-400">กรรมการ ${i + 1}</span>
+            <span class="font-medium text-darkText">${esc(m)}</span>
           </div>`).join('')}
+        ${item.secretary ? `
+          <div class="flex items-center gap-3 px-3 py-2.5 bg-slate-50/60">
+            <span class="w-14 shrink-0 text-[10px] text-slate-400">เลขานุการ</span>
+            <span class="font-medium text-darkText">${esc(item.secretary)}</span>
+          </div>` : ''}
       </div>
+      <p class="text-[10px] text-slate-400">รวม ${1 + (item.committee || []).length} คน${item.secretary ? ' และเลขานุการ 1 คน' : ''}</p>
     </div>
 
     <div class="p-4 rounded-xl border border-slate-100 bg-white space-y-2.5">
