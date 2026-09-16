@@ -343,7 +343,7 @@ input[type=number]{-moz-appearance:textfield}
                   <span class="text-3xl font-bold text-darkText leading-none" id="kpiCriticalNum">0</span>
                   <span class="text-base font-medium text-slate-700 leading-none">สัญญา</span>
                 </div>
-                <p class="text-xs text-slate-500 mt-2">ส่งมอบล่าช้า / ติดค่าปรับ</p>
+                <p class="text-xs text-slate-500 mt-2">ส่งมอบล่าช้า / ค่าปรับ</p>
               </div>
               <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
                 <i data-lucide="alert-octagon" class="w-5 h-5"></i>
@@ -405,7 +405,7 @@ input[type=number]{-moz-appearance:textfield}
             </div>
             <div class="flex items-center gap-4 text-xs shrink-0 flex-wrap">
               <span class="flex items-center gap-1.5 text-slate-500"><span class="w-3 h-2 rounded-sm inline-block" style="background-color:var(--series)"></span> ส่งมอบตรงเวลา</span>
-              <span class="flex items-center gap-1.5 text-slate-500"><span class="w-3 h-2 rounded-sm inline-block" style="background-color:#FF3B30"></span> ล่าช้า / ติดค่าปรับ</span>
+              <span class="flex items-center gap-1.5 text-slate-500"><span class="w-3 h-2 rounded-sm inline-block" style="background-color:#FF3B30"></span> ล่าช้า / มีค่าปรับ</span>
             </div>
           </div>
           <div class="space-y-4 pt-2" id="barChartContainer"></div>
@@ -416,7 +416,7 @@ input[type=number]{-moz-appearance:textfield}
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-sm font-semibold text-darkText flex items-center gap-2"><span class="w-6 h-6 rounded-lg bg-ice-50 text-ice-600 border border-ice-100 flex items-center justify-center"><i data-lucide="calendar-check-2" class="w-3.5 h-3.5"></i></span> Upcoming Deliverable Milestones</h3>
-              <p class="text-xs text-slate-500" id="milestonesSubtitle">รายการโครงการจริงในระบบ</p>
+              <p class="text-xs text-slate-500" id="milestonesSubtitle">รายการโครงการ</p>
             </div>
             <button onclick="switchTab('tracking')" class="text-xs text-ice-600 hover:text-ice-700 font-medium flex items-center gap-1 no-print">
               View All Contracts <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
@@ -467,7 +467,7 @@ input[type=number]{-moz-appearance:textfield}
           </select>
           <select id="urgencyFilter" onchange="renderTable()" class="bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-xs text-darkText focus:outline-none">
             <option value="ALL">ทุกระดับความเร่งด่วน</option>
-            <option value="critical">ล่าช้า / ติดค่าปรับ</option>
+            <option value="critical">ล่าช้า / มีค่าปรับ</option>
             <option value="warning">ใกล้ครบกำหนด ≤ 30 วัน</option>
             <option value="ok">ปกติ</option>
             <option value="done">ส่งมอบครบแล้ว</option>
@@ -483,7 +483,8 @@ input[type=number]{-moz-appearance:textfield}
         <span class="flex items-center gap-3">
           <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Critical</span>
           <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Warning</span>
-          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> On Track</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-ice-500"></span> On Track</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Done</span>
         </span>
       </div>
 
@@ -1962,11 +1963,17 @@ function contractUrgency(contract) {
   const left = due ? daysUntil(due) : null;
 
   if (pendingOverdue || totalFine > 0) {
-    return { level: 'critical', label: pendingOverdue ? 'ล่าช้า / เกินกำหนด' : 'ส่งมอบล่าช้า ติดค่าปรับ', daysLeft: left, totalFine: totalFine };
+    /* overdue = ยังมีงวดที่ "ยังไม่ส่งมอบ" และเลยกำหนดแล้วจริง ๆ
+       ถ้าส่งมอบครบแล้วแต่ยังมีค่าปรับ ต้องไม่รายงานว่าล่าช้าอยู่ */
+    return {
+      level: 'critical', overdue: pendingOverdue,
+      label: pendingOverdue ? 'ล่าช้า / เกินกำหนด' : 'ส่งมอบล่าช้า มีค่าปรับ',
+      daysLeft: left, totalFine: totalFine
+    };
   }
-  if (allDone) return { level: 'done', label: 'ส่งมอบครบถ้วน', daysLeft: left, totalFine: 0 };
-  if (left !== null && left <= ALERT_WINDOW_DAYS) return { level: 'warning', label: 'ใกล้ครบกำหนดส่งมอบ', daysLeft: left, totalFine: 0 };
-  return { level: 'ok', label: 'อยู่ในกำหนด', daysLeft: left, totalFine: 0 };
+  if (allDone) return { level: 'done', overdue: false, label: 'ส่งมอบครบถ้วน', daysLeft: left, totalFine: 0 };
+  if (left !== null && left <= ALERT_WINDOW_DAYS) return { level: 'warning', overdue: false, label: 'ใกล้ครบกำหนดส่งมอบ', daysLeft: left, totalFine: 0 };
+  return { level: 'ok', overdue: false, label: 'อยู่ในกำหนด', daysLeft: left, totalFine: 0 };
 }
 
 /* รายการหลักประกันที่ใกล้ครบกำหนด (ภายใน 30 วัน) หรือหมดอายุแล้วแต่ยังไม่ปิด */
@@ -2310,8 +2317,8 @@ function openAirportModal(code) {
   document.getElementById('scorecardListBody').innerHTML = `
     <div class="flex flex-wrap gap-2 mb-1">
       ${stat('สัญญาทั้งหมด', list.length)}
-      ${stat('ส่งมอบตรงเวลา', list.length - late.length, 'text-emerald-600')}
-      ${stat('ล่าช้า / ติดค่าปรับ', late.length, late.length ? 'fine-amount' : 'text-slate-400')}
+      ${stat('ส่งมอบตรงเวลา', list.length - late.length, 'text-ice-700')}
+      ${stat('ล่าช้า / มีค่าปรับ', late.length, late.length ? 'fine-amount' : 'text-slate-400')}
       ${stat('ใกล้ครบกำหนด', warn.length, warn.length ? 'text-amber-600' : 'text-slate-400')}
     </div>
     <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-900 text-white mb-2">
@@ -2331,14 +2338,16 @@ function openAirportModal(code) {
 function urgencyBadge(u) {
   if (u.level === 'critical') {
     const d = u.daysLeft;
-    const txt = (d !== null && d < 0) ? `ล่าช้า ${Math.abs(d)} วัน` : 'ติดค่าปรับ';
-    return `<span class="text-[11px] px-2.5 py-1 rounded-full border bg-rose-50 text-rose-600 border-rose-100 font-semibold whitespace-nowrap">${txt}</span>`;
+    const txt = (u.overdue && d !== null && d < 0) ? `ล่าช้า ${Math.abs(d)} วัน` : 'มีค่าปรับ';
+    return `<span class="text-[11px] px-2.5 py-1 rounded-full border bg-rose-50 text-rose-700 border-rose-200 font-semibold whitespace-nowrap">${txt}</span>`;
   }
+  /* Done = เขียว (สำเร็จ) · On Track = ฟ้า (อยู่ระหว่างดำเนินการ ยังไม่ถึงกำหนด)
+     ป้ายทุกใบเป็นพื้นอ่อน + ตัวอักษรเข้ม ต่างจากปุ่มที่เป็นพื้นฟ้าทึบตัวอักษรขาว */
   if (u.level === 'done')
-    return `<span class="text-[11px] px-2.5 py-1 rounded-full border bg-slate-50 text-slate-500 border-slate-200 whitespace-nowrap">ส่งมอบครบแล้ว</span>`;
+    return `<span class="text-[11px] px-2.5 py-1 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold whitespace-nowrap">ส่งมอบครบแล้ว</span>`;
   if (u.level === 'warning')
-    return `<span class="text-[11px] px-2.5 py-1 rounded-full border bg-amber-50 text-amber-600 border-amber-100 font-semibold whitespace-nowrap">เหลืออีก ${u.daysLeft} วัน</span>`;
-  return `<span class="text-[11px] px-2.5 py-1 rounded-full border bg-emerald-50 text-emerald-600 border-emerald-100 whitespace-nowrap">เหลืออีก ${u.daysLeft === null ? '-' : u.daysLeft} วัน</span>`;
+    return `<span class="text-[11px] px-2.5 py-1 rounded-full border bg-amber-50 text-amber-800 border-amber-200 font-semibold whitespace-nowrap">เหลืออีก ${u.daysLeft} วัน</span>`;
+  return `<span class="text-[11px] px-2.5 py-1 rounded-full border bg-ice-50 text-ice-700 border-ice-200 whitespace-nowrap">เหลืออีก ${u.daysLeft === null ? '-' : u.daysLeft} วัน</span>`;
 }
 
 function renderMilestones() {
@@ -2352,7 +2361,7 @@ function renderMilestones() {
     return (ua.daysLeft === null ? 9999 : ua.daysLeft) - (ub.daysLeft === null ? 9999 : ub.daysLeft);
   });
 
-  subtitle.innerText = `รายการโครงการจริงในระบบ ${list.length} โครงการ (เรียงตามความเร่งด่วน • คลิกเพื่อดูรายละเอียด)`;
+  subtitle.innerText = `รายการโครงการ จำนวน ${list.length} โครงการ (เรียงตามความเร่งด่วน • คลิกเพื่อดูรายละเอียด)`;
 
   if (!list.length) {
     container.innerHTML = `<div class="text-xs text-slate-400 text-center py-6">ยังไม่มีโครงการในระบบ</div>`;
@@ -2397,7 +2406,7 @@ function renderUrgentCard() {
   const u = contractUrgency(c);
   const due = contractDueDate(c);
   const fine = contractTotalFine(c);
-  const overdue = u.level === 'critical' && u.daysLeft !== null && u.daysLeft < 0;
+  const overdue = u.level === 'critical' && u.overdue && u.daysLeft !== null && u.daysLeft < 0;
 
   const headline = u.level === 'critical'
     ? (overdue ? `เกินกำหนดส่งมอบแล้ว ${Math.abs(u.daysLeft)} วัน` : 'มีค่าปรับค้างดำเนินการ')
@@ -2525,7 +2534,7 @@ function renderTable() {
     return;
   }
 
-  const dot = { critical: 'bg-rose-500', warning: 'bg-amber-500', ok: 'bg-emerald-500', done: 'bg-slate-300' };
+  const dot = { critical: 'bg-rose-500', warning: 'bg-amber-500', ok: 'bg-ice-500', done: 'bg-emerald-500' };
 
   tbody.innerHTML = list.map(c => {
     const u = contractUrgency(c);
@@ -3500,7 +3509,7 @@ function openModal(contractId) {
 
   const daysText = left === null ? '-' : (left < 0
     ? `<span class="text-rose-600 font-semibold">ล่าช้า ${Math.abs(left)} วัน (เกินกำหนด)</span>`
-    : `<span class="${left <= ALERT_WINDOW_DAYS ? 'text-amber-600' : 'text-emerald-600'} font-semibold">เหลืออีก ${left} วัน</span>`);
+    : `<span class="${left <= ALERT_WINDOW_DAYS ? 'text-amber-600' : 'text-ice-700'} font-semibold">เหลืออีก ${left} วัน</span>`);
 
   document.getElementById('modalBody').innerHTML = `
     <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
@@ -3661,7 +3670,7 @@ function closeModal() { hideOverlay('contractModal'); }
 
 function openScorecardModal(kind) {
   const cfg = {
-    critical: { title: 'สัญญาที่ล่าช้า / ติดค่าปรับ (Critical)', icon: 'alert-octagon', cls: 'bg-rose-100 text-rose-600' },
+    critical: { title: 'สัญญาที่ล่าช้า / มีค่าปรับ (Critical)', icon: 'alert-octagon', cls: 'bg-rose-100 text-rose-600' },
     warning:  { title: 'สัญญาที่ใกล้ครบกำหนดส่งมอบภายใน 30 วัน', icon: 'clock', cls: 'bg-amber-100 text-amber-600' },
     guarantee:{ title: 'หลักประกันที่ใกล้ครบกำหนดภายใน 30 วัน', icon: 'shield-check', cls: 'bg-ice-100 text-ice-600' }
   }[kind];
@@ -3685,7 +3694,7 @@ function openScorecardModal(kind) {
               <div class="text-[10px] text-slate-500 mt-0.5 line-clamp-1">${esc(c.airport)} • ${esc(c.vendor)} • ${g.docs} ฉบับ • ${formatMoney(g.amount)} บาท</div>
               <div class="text-[10px] text-slate-400 mt-0.5">ครบกำหนด ${thDate(g.endDate)}</div>
             </div>
-            <span class="text-[11px] px-2.5 py-1 rounded-full border shrink-0 whitespace-nowrap ${g.daysLeft < 0 ? 'bg-rose-50 text-rose-600 border-rose-100 font-semibold' : 'bg-amber-50 text-amber-600 border-amber-100 font-semibold'}">
+            <span class="text-[11px] px-2.5 py-1 rounded-full border shrink-0 whitespace-nowrap ${g.daysLeft < 0 ? 'bg-rose-50 text-rose-700 border-rose-200 font-semibold' : 'bg-amber-50 text-amber-800 border-amber-200 font-semibold'}">
               ${g.daysLeft < 0 ? `เลยกำหนด ${Math.abs(g.daysLeft)} วัน` : `อีก ${g.daysLeft} วัน`}
             </span>
           </div>`);
