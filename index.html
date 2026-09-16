@@ -530,7 +530,9 @@ input[type=number]{-moz-appearance:textfield}
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div>
               <label class="block font-medium text-slate-700 mb-1">1. เลขที่สัญญา <span class="text-rose-500">*</span></label>
-              <input type="text" id="formContractNo" required placeholder="เช่น 1/2569" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-ice-500">
+              <input type="text" id="formContractNo" required placeholder="เช่น 1/2569" oninput="checkDuplicateContractNo()"
+                     class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-ice-500">
+              <span class="text-[10px] block mt-0.5" id="contractNoHint"></span>
             </div>
             <div>
               <label class="block font-medium text-slate-700 mb-1">ลงวันที่ (สัญญา) <span class="text-rose-500">*</span></label>
@@ -2989,19 +2991,92 @@ function collectInstallments() {
 }
 
 /* ---------------------------------------------------------------
+   ตรวจเลขที่สัญญาซ้ำ
+   เทียบแบบไม่สนตัวพิมพ์เล็กใหญ่ ช่องว่าง และขีด/ทับที่ต่างกัน
+   เพราะ "1/2569", "1 / 2569" และ "1-2569" คือสัญญาเดียวกันในทางปฏิบัติ
+---------------------------------------------------------------- */
+function contractNoKey(v) {
+  return cleanText(v).toLowerCase()
+    .replace(/[\s\-–—_./\\]+/g, '/')       /* 1/2569 · 1 / 2569 · 1-2569 → รูปเดียวกัน */
+    .replace(/^\/|\/$/g, '')
+    .split('/')
+    .map(s => s.replace(/^0+(?=\d)/, ''))  /* 08/2569 = 8/2569 */
+    .join('/');
+}
+
+function trimText(v, max) {
+  const s = cleanText(v);
+  return s.length > max ? s.slice(0, max - 1) + '…' : s;
+}
+
+/* คืนค่าสัญญาที่มีเลขที่ตรงกัน (ไม่นับตัวที่กำลังแก้ไขอยู่) */
+function findDuplicateContractNo(value, excludeId) {
+  const key = contractNoKey(value);
+  if (!key) return null;
+  const skip = parseInt(excludeId, 10);
+  return contracts.find(c => c.id !== skip && contractNoKey(c.contractNo) === key) || null;
+}
+
+/* เตือนทันทีขณะพิมพ์ ไม่ต้องรอกดบันทึก */
+function checkDuplicateContractNo() {
+  const input = document.getElementById('formContractNo');
+  const hint = document.getElementById('contractNoHint');
+  if (!input || !hint) return null;
+
+  const dup = findDuplicateContractNo(input.value, document.getElementById('editingContractId').value);
+  if (!dup) {
+    hint.innerHTML = '';
+    input.classList.remove('border-rose-400', 'bg-rose-50');
+    return null;
+  }
+
+  input.classList.add('border-rose-400', 'bg-rose-50');
+  hint.innerHTML = `<span class="text-rose-700">เลขที่นี้มีอยู่แล้วในระบบ — ${esc(airportAbbr(dup.airport))} · ${esc(trimText(dup.projectName, 38))}</span>
+    <button type="button" onclick="openModal(${dup.id})" class="text-ice-600 hover:underline font-semibold ml-1">ดูสัญญาเดิม</button>`;
+  return dup;
+}
+
+/* ---------------------------------------------------------------
    ระบบช่วยเตือนตอนกรอกข้อมูล (Pre-save check)
    คืนค่า true = บันทึกต่อได้ทันที / false = มีกล่องทักท้วงเปิดอยู่
    หลักการ: ทักท้วงเพื่อให้ตรวจซ้ำ ไม่ห้ามบันทึก
 ---------------------------------------------------------------- */
-function runPreSaveCheck(installments) {
+function runPreSaveCheck(installments, ack) {
+  ack = ack || {};
   const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
 
+  /* เลขที่สัญญาซ้ำกับรายการที่มีอยู่แล้ว */
+  if (!ack.dup) {
+    const input = document.getElementById('formContractNo');
+    const dup = findDuplicateContractNo(input.value, document.getElementById('editingContractId').value);
+    if (dup) {
+      askConfirm(
+        'เลขที่สัญญาซ้ำ',
+        `เลขที่ "${cleanText(input.value)}" มีอยู่แล้วในระบบ\n${airportAbbr(dup.airport)} · ${trimText(dup.projectName, 48)}\n\nการบันทึกซ้ำจะทำให้แยกไม่ออกว่ารายการใดเป็นรายการจริง`,
+        /* ปุ่มหลัก = ทางที่ปลอดภัย : กลับไปแก้เลขที่ */
+        function () {
+          switchTab('form');
+          input.focus();
+          input.select();
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        },
+        {
+          tone: 'warn',
+          okText: 'กลับไปแก้เลขที่',
+          cancelText: 'ยืนยันบันทึกซ้ำ',
+          onCancel: function () { saveContract(null, Object.assign({}, ack, { dup: true })); }
+        }
+      );
+      return false;
+    }
+  }
+
   /* เลือก "แบ่งจ่ายเป็นงวด" แต่ระบุไว้เพียงงวดเดียว */
-  if (deliveryType === 'multiple' && installments.length === 1) {
+  if (!ack.single && deliveryType === 'multiple' && installments.length === 1) {
     askConfirm(
       'ตรวจสอบจำนวนงวดงาน',
       'เลือก "แบ่งจ่ายเป็นงวด" แต่ระบุไว้เพียง 1 งวด\nต้องการบันทึกตามนี้ หรือเพิ่มงวดก่อน?',
-      function () { saveContract(null, true); },
+      function () { saveContract(null, Object.assign({}, ack, { single: true })); },
       {
         tone: 'warn',
         okText: 'บันทึกตามนี้',
@@ -3064,6 +3139,7 @@ function resetForm() {
   document.getElementById('installmentTbody').innerHTML = '';
 
   document.querySelectorAll('#view-form .datepicker-input').forEach(dp => setDatepickerValue(dp, ''));
+  checkDuplicateContractNo();
 
   const singleRadio = document.querySelector('input[name="deliveryType"][value="single"]');
   if (singleRadio) singleRadio.checked = true;
@@ -3110,6 +3186,7 @@ function editContract(id) {
 
   /* ส่วนที่ 1 */
   document.getElementById('formContractNo').value = item.contractNo;
+  checkDuplicateContractNo();
   setDatepickerValue('formContractDate', item.contractDate);
   document.getElementById('formAirport').value = item.airport;
   document.getElementById('formProjectName').value = item.projectName;
@@ -3179,7 +3256,8 @@ function editContract(id) {
   switchTab('form');
 }
 
-function saveContract(e, skipPreCheck) {
+/* ack = รายการคำเตือนที่ผู้ใช้ยืนยันผ่านไปแล้ว เช่น {dup:true} */
+function saveContract(e, ack) {
   if (e && typeof e.preventDefault === 'function') e.preventDefault();
 
   const editingId = document.getElementById('editingContractId').value;
@@ -3197,7 +3275,7 @@ function saveContract(e, skipPreCheck) {
   if (!installments.some(i => i.dueDate)) { toast('กรุณาระบุวันครบกำหนดส่งมอบอย่างน้อย 1 งวด', 'error'); return; }
 
   /* ทักท้วงก่อนบันทึก — ไม่บล็อก ผู้ใช้ยืนยันบันทึกต่อได้ */
-  if (!skipPreCheck && !runPreSaveCheck(installments)) return;
+  if (!runPreSaveCheck(installments, ack)) return;
 
   const payload = {
     contractNo: cleanText(document.getElementById('formContractNo').value),
